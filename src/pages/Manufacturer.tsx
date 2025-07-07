@@ -44,7 +44,7 @@ const Manufacturer = () => {
     }
   };
 
-  const currentManufacturer = manufacturers[id as keyof typeof manufacturers];
+  const currentManufacturer = manufacturers[Number(id) as keyof typeof manufacturers];
 
   if (!currentManufacturer) {
     return (
