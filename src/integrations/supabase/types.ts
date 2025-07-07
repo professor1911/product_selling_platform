@@ -14,7 +14,110 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      manufacturers: {
+        Row: {
+          certifications: string[] | null
+          created_at: string
+          description: string | null
+          email: string | null
+          employees: string | null
+          founded: string | null
+          id: string
+          image: string | null
+          location: string | null
+          name: string
+          phone: string | null
+          rating: number | null
+          total_products: number | null
+          updated_at: string
+          website: string | null
+        }
+        Insert: {
+          certifications?: string[] | null
+          created_at?: string
+          description?: string | null
+          email?: string | null
+          employees?: string | null
+          founded?: string | null
+          id?: string
+          image?: string | null
+          location?: string | null
+          name: string
+          phone?: string | null
+          rating?: number | null
+          total_products?: number | null
+          updated_at?: string
+          website?: string | null
+        }
+        Update: {
+          certifications?: string[] | null
+          created_at?: string
+          description?: string | null
+          email?: string | null
+          employees?: string | null
+          founded?: string | null
+          id?: string
+          image?: string | null
+          location?: string | null
+          name?: string
+          phone?: string | null
+          rating?: number | null
+          total_products?: number | null
+          updated_at?: string
+          website?: string | null
+        }
+        Relationships: []
+      }
+      products: {
+        Row: {
+          category: string
+          created_at: string
+          id: string
+          image: string | null
+          location: string | null
+          manufacturer_id: string | null
+          name: string
+          price: number
+          quantity: string
+          rating: number | null
+          updated_at: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          id?: string
+          image?: string | null
+          location?: string | null
+          manufacturer_id?: string | null
+          name: string
+          price: number
+          quantity: string
+          rating?: number | null
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          id?: string
+          image?: string | null
+          location?: string | null
+          manufacturer_id?: string | null
+          name?: string
+          price?: number
+          quantity?: string
+          rating?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "products_manufacturer_id_fkey"
+            columns: ["manufacturer_id"]
+            isOneToOne: false
+            referencedRelation: "manufacturers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

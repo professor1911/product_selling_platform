@@ -5,48 +5,58 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Package, MapPin, Star, Globe, Phone, Mail, Building, Users, Award } from "lucide-react";
 import ThemeToggle from "@/components/ThemeToggle";
+import { supabase } from "@/integrations/supabase/client";
+import { useQuery } from "@tanstack/react-query";
 
 const Manufacturer = () => {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  // Mock manufacturer data
-  const manufacturers = {
-    1: {
-      id: 1,
-      name: "TechSound Corp",
-      description: "Leading manufacturer of premium audio equipment with over 15 years of experience in the industry. We specialize in wireless audio solutions and professional sound equipment.",
-      location: "California, USA",
-      website: "www.techsound.com",
-      email: "contact@techsound.com",
-      phone: "+1 (555) 123-4567",
-      founded: "2008",
-      employees: "150-200",
-      certifications: ["ISO 9001", "CE", "FCC"],
-      rating: 4.8,
-      totalProducts: 45,
-      image: "/lovable-uploads/photo-1649972904349-6e44c42644a7.jpg"
+  // Fetch manufacturer data from Supabase
+  const { data: manufacturer, isLoading: isLoadingManufacturer } = useQuery({
+    queryKey: ['manufacturer', id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('manufacturers')
+        .select('*')
+        .eq('id', id)
+        .single();
+      
+      if (error) throw error;
+      return data;
     },
-    2: {
-      id: 2,
-      name: "HealthTech Solutions",
-      description: "Innovative health technology company focused on creating smart wearable devices that help people live healthier lives. Our products combine cutting-edge technology with user-friendly design.",
-      location: "Texas, USA",
-      website: "www.healthtech.com",
-      email: "info@healthtech.com",
-      phone: "+1 (555) 987-6543",
-      founded: "2012",
-      employees: "100-150",
-      certifications: ["FDA", "CE", "ISO 13485"],
-      rating: 4.6,
-      totalProducts: 28,
-      image: "/lovable-uploads/photo-1488590528505-98d2b5aba04b.jpg"
-    }
-  };
+    enabled: !!id
+  });
 
-  const currentManufacturer = manufacturers[Number(id) as keyof typeof manufacturers];
+  // Fetch manufacturer's products from Supabase
+  const { data: manufacturerProducts = [], isLoading: isLoadingProducts } = useQuery({
+    queryKey: ['manufacturer-products', id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .eq('manufacturer_id', id);
+      
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!id
+  });
 
-  if (!currentManufacturer) {
+  const isLoading = isLoadingManufacturer || isLoadingProducts;
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center">
+        <div className="text-center">
+          <Package className="h-16 w-16 text-blue-600 dark:text-blue-400 mx-auto mb-4 animate-pulse" />
+          <p className="text-gray-600 dark:text-gray-400">Loading manufacturer details...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!manufacturer) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
@@ -58,45 +68,6 @@ const Manufacturer = () => {
       </div>
     );
   }
-
-  const manufacturerProducts = [
-    {
-      id: 1,
-      name: "Premium Wireless Headphones",
-      price: 99.99,
-      quantity: "1 piece",
-      image: "/lovable-uploads/photo-1649972904349-6e44c42644a7.jpg",
-      category: "Electronics",
-      rating: 4.8
-    },
-    {
-      id: 2,
-      name: "Bluetooth Speakers",
-      price: 79.99,
-      quantity: "1 piece",
-      image: "/lovable-uploads/photo-1486312338219-ce68d2c6f44d.jpg",
-      category: "Electronics",
-      rating: 4.7
-    },
-    {
-      id: 3,
-      name: "Professional Microphone",
-      price: 159.99,
-      quantity: "1 piece",
-      image: "/lovable-uploads/photo-1518770660439-4636190af475.jpg",
-      category: "Electronics",
-      rating: 4.9
-    },
-    {
-      id: 4,
-      name: "Audio Mixing Console",
-      price: 299.99,
-      quantity: "1 piece",
-      image: "/lovable-uploads/photo-1581091226825-a6a2a5aee158.jpg",
-      category: "Electronics",
-      rating: 4.6
-    }
-  ];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-all duration-300">
@@ -132,23 +103,23 @@ const Manufacturer = () => {
                 <Building className="h-8 w-8 text-blue-600 dark:text-blue-400 mr-3" />
                 <div>
                   <h1 className="text-3xl font-bold text-gray-800 dark:text-white mb-2">
-                    {currentManufacturer.name}
+                    {manufacturer.name}
                   </h1>
                   <div className="flex items-center space-x-4 text-sm text-gray-600 dark:text-gray-400">
                     <div className="flex items-center">
                       <MapPin className="h-4 w-4 mr-1" />
-                      {currentManufacturer.location}
+                      {manufacturer.location}
                     </div>
                     <div className="flex items-center">
                       <Star className="h-4 w-4 mr-1 text-yellow-400" />
-                      {currentManufacturer.rating} Rating
+                      {manufacturer.rating} Rating
                     </div>
                   </div>
                 </div>
               </div>
               
               <p className="text-gray-600 dark:text-gray-300 mb-6 leading-relaxed">
-                {currentManufacturer.description}
+                {manufacturer.description}
               </p>
 
               <div className="grid md:grid-cols-2 gap-6">
@@ -160,19 +131,19 @@ const Manufacturer = () => {
                     <div className="flex items-center">
                       <Users className="h-4 w-4 text-gray-500 mr-2" />
                       <span className="text-sm text-gray-600 dark:text-gray-400">
-                        Employees: {currentManufacturer.employees}
+                        Employees: {manufacturer.employees}
                       </span>
                     </div>
                     <div className="flex items-center">
                       <Building className="h-4 w-4 text-gray-500 mr-2" />
                       <span className="text-sm text-gray-600 dark:text-gray-400">
-                        Founded: {currentManufacturer.founded}
+                        Founded: {manufacturer.founded}
                       </span>
                     </div>
                     <div className="flex items-center">
                       <Package className="h-4 w-4 text-gray-500 mr-2" />
                       <span className="text-sm text-gray-600 dark:text-gray-400">
-                        Products: {currentManufacturer.totalProducts}
+                        Products: {manufacturer.total_products}
                       </span>
                     </div>
                   </div>
@@ -185,20 +156,20 @@ const Manufacturer = () => {
                   <div className="space-y-2">
                     <div className="flex items-center">
                       <Globe className="h-4 w-4 text-gray-500 mr-2" />
-                      <a href={`https://${currentManufacturer.website}`} className="text-blue-600 dark:text-blue-400 hover:underline text-sm">
-                        {currentManufacturer.website}
+                      <a href={`https://${manufacturer.website}`} className="text-blue-600 dark:text-blue-400 hover:underline text-sm">
+                        {manufacturer.website}
                       </a>
                     </div>
                     <div className="flex items-center">
                       <Mail className="h-4 w-4 text-gray-500 mr-2" />
-                      <a href={`mailto:${currentManufacturer.email}`} className="text-blue-600 dark:text-blue-400 hover:underline text-sm">
-                        {currentManufacturer.email}
+                      <a href={`mailto:${manufacturer.email}`} className="text-blue-600 dark:text-blue-400 hover:underline text-sm">
+                        {manufacturer.email}
                       </a>
                     </div>
                     <div className="flex items-center">
                       <Phone className="h-4 w-4 text-gray-500 mr-2" />
                       <span className="text-sm text-gray-600 dark:text-gray-400">
-                        {currentManufacturer.phone}
+                        {manufacturer.phone}
                       </span>
                     </div>
                   </div>
@@ -208,8 +179,8 @@ const Manufacturer = () => {
 
             <div className="space-y-6">
               <img
-                src={currentManufacturer.image}
-                alt={currentManufacturer.name}
+                src={manufacturer.image}
+                alt={manufacturer.name}
                 className="w-full h-48 object-cover rounded-lg shadow-lg"
               />
               
@@ -219,7 +190,7 @@ const Manufacturer = () => {
                   Certifications
                 </h3>
                 <div className="flex flex-wrap gap-2">
-                  {currentManufacturer.certifications.map((cert, index) => (
+                  {manufacturer.certifications.map((cert, index) => (
                     <Badge key={index} className="bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200">
                       {cert}
                     </Badge>
@@ -237,7 +208,7 @@ const Manufacturer = () => {
         {/* Products Section */}
         <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl p-6 shadow-xl">
           <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-6">
-            Products by {currentManufacturer.name}
+            Products by {manufacturer.name}
           </h2>
           
           <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">

@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
@@ -8,6 +8,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Search, Filter, Package, ArrowLeft, Star, MapPin } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import ThemeToggle from "@/components/ThemeToggle";
+import { supabase } from "@/integrations/supabase/client";
+import { useQuery } from "@tanstack/react-query";
 
 const Products = () => {
   const navigate = useNavigate();
@@ -15,81 +17,38 @@ const Products = () => {
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [priceRange, setPriceRange] = useState("all");
 
-  // Mock product data
-  const products = [
-    {
-      id: 1,
-      name: "Premium Wireless Headphones",
-      manufacturer: "TechSound Corp",
-      manufacturerId: 1,
-      price: 99.99,
-      quantity: "1 piece",
-      image: "/lovable-uploads/photo-1649972904349-6e44c42644a7.jpg",
-      category: "Electronics",
-      rating: 4.8,
-      location: "California, USA"
-    },
-    {
-      id: 2,
-      name: "Smart Fitness Tracker",
-      manufacturer: "HealthTech Solutions",
-      manufacturerId: 2,
-      price: 149.99,
-      quantity: "1 piece",
-      image: "/lovable-uploads/photo-1488590528505-98d2b5aba04b.jpg",
-      category: "Electronics",
-      rating: 4.6,
-      location: "Texas, USA"
-    },
-    {
-      id: 3,
-      name: "Organic Protein Powder",
-      manufacturer: "NutriLife Industries",
-      manufacturerId: 3,
-      price: 45.99,
-      quantity: "1 kg",
-      image: "/lovable-uploads/photo-1518770660439-4636190af475.jpg",
-      category: "Health",
-      rating: 4.9,
-      location: "New York, USA"
-    },
-    {
-      id: 4,
-      name: "Professional Camera Lens",
-      manufacturer: "OpticsTech Pro",
-      manufacturerId: 4,
-      price: 299.99,
-      quantity: "1 piece",
-      image: "/lovable-uploads/photo-1486312338219-ce68d2c6f44d.jpg",
-      category: "Electronics",
-      rating: 4.7,
-      location: "California, USA"
-    },
-    {
-      id: 5,
-      name: "Ergonomic Office Chair",
-      manufacturer: "ComfortDesign Ltd",
-      manufacturerId: 5,
-      price: 189.99,
-      quantity: "1 piece",
-      image: "/lovable-uploads/photo-1581091226825-a6a2a5aee158.jpg",
-      category: "Furniture",
-      rating: 4.5,
-      location: "Michigan, USA"
-    },
-    {
-      id: 6,
-      name: "Smart Home Security Kit",
-      manufacturer: "SecureHome Systems",
-      manufacturerId: 6,
-      price: 249.99,
-      quantity: "1 set",
-      image: "/lovable-uploads/photo-1526374965328-7f61d4dc18c5.jpg",
-      category: "Electronics",
-      rating: 4.8,
-      location: "Florida, USA"
+  // Fetch products from Supabase
+  const { data: products = [], isLoading } = useQuery({
+    queryKey: ['products'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('products')
+        .select(`
+          *,
+          manufacturers (
+            id,
+            name,
+            location
+          )
+        `)
+        .order('created_at', { ascending: false });
+      
+      if (error) throw error;
+      
+      return data.map(product => ({
+        id: product.id,
+        name: product.name,
+        manufacturer: product.manufacturers?.name || 'Unknown',
+        manufacturerId: product.manufacturers?.id || '',
+        price: typeof product.price === 'string' ? parseFloat(product.price) : product.price,
+        quantity: product.quantity,
+        image: product.image,
+        category: product.category,
+        rating: typeof product.rating === 'string' ? parseFloat(product.rating) : product.rating,
+        location: product.location || product.manufacturers?.location || 'Unknown'
+      }));
     }
-  ];
+  });
 
   const categories = ["all", "Electronics", "Health", "Furniture", "Home & Garden", "Sports"];
   const priceRanges = [
@@ -117,6 +76,17 @@ const Products = () => {
     
     return matchesSearch && matchesCategory && matchesPrice;
   });
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center">
+        <div className="text-center">
+          <Package className="h-16 w-16 text-blue-600 dark:text-blue-400 mx-auto mb-4 animate-pulse" />
+          <p className="text-gray-600 dark:text-gray-400">Loading products...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-all duration-300">
