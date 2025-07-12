@@ -4,7 +4,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { LogOut, Package, MessageSquare, Plus } from "lucide-react";
+import { LogOut } from "lucide-react";
+import { ProductManagement } from "@/components/ProductManagement";
+import { LeadManagement } from "@/components/LeadManagement";
 import { useToast } from "@/hooks/use-toast";
 import type { User } from "@supabase/supabase-js";
 
@@ -110,46 +112,28 @@ const ManufacturerPortal = () => {
       <main className="container mx-auto px-4 py-8">
         <Tabs defaultValue="products" className="w-full">
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="products" className="flex items-center space-x-2">
-              <Package className="w-4 h-4" />
-              <span>Products</span>
-            </TabsTrigger>
-            <TabsTrigger value="leads" className="flex items-center space-x-2">
-              <MessageSquare className="w-4 h-4" />
-              <span>Leads</span>
-            </TabsTrigger>
+            <TabsTrigger value="products">Products</TabsTrigger>
+            <TabsTrigger value="leads">Leads</TabsTrigger>
           </TabsList>
           
           <TabsContent value="products" className="space-y-6">
-            <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-bold">Your Products</h2>
-              <Button>
-                <Plus className="w-4 h-4 mr-2" />
-                Add Product
-              </Button>
-            </div>
-            
-            <Card>
-              <CardHeader>
-                <CardTitle>Product Management</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">Product management features coming soon...</p>
-              </CardContent>
-            </Card>
+            {profile?.manufacturer_id ? (
+              <ProductManagement manufacturerId={profile.manufacturer_id} />
+            ) : (
+              <div className="text-center py-8">
+                <p className="text-muted-foreground">No manufacturer profile linked to your account.</p>
+              </div>
+            )}
           </TabsContent>
           
           <TabsContent value="leads" className="space-y-6">
-            <h2 className="text-2xl font-bold">Customer Leads</h2>
-            
-            <Card>
-              <CardHeader>
-                <CardTitle>Recent Inquiries</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">Lead management features coming soon...</p>
-              </CardContent>
-            </Card>
+            {profile?.manufacturer_id ? (
+              <LeadManagement manufacturerId={profile.manufacturer_id} />
+            ) : (
+              <div className="text-center py-8">
+                <p className="text-muted-foreground">No manufacturer profile linked to your account.</p>
+              </div>
+            )}
           </TabsContent>
         </Tabs>
       </main>

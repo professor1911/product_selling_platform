@@ -79,6 +79,13 @@ const Index = () => {
           </div>
           <div className="flex items-center space-x-4">
             <ThemeToggle />
+            <Button 
+              onClick={() => navigate("/auth")}
+              variant="outline"
+              className="border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white"
+            >
+              Manufacturer Login
+            </Button>
             {!isLoggedIn ? (
               <Button 
                 onClick={() => setShowAuth(true)}

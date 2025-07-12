@@ -10,6 +10,7 @@ import { useNavigate } from "react-router-dom";
 import ThemeToggle from "@/components/ThemeToggle";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
+import { InquiryForm } from "@/components/InquiryForm";
 
 const Products = () => {
   const navigate = useNavigate();
@@ -39,7 +40,7 @@ const Products = () => {
         id: product.id,
         name: product.name,
         manufacturer: product.manufacturers?.name || 'Unknown',
-        manufacturerId: product.manufacturers?.id || '',
+        manufacturer_id: product.manufacturer_id,
         price: typeof product.price === 'string' ? parseFloat(product.price) : product.price,
         quantity: product.quantity,
         image: product.image,
@@ -210,7 +211,7 @@ const Products = () => {
                   <Button
                     variant="link"
                     className="p-0 h-auto text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-medium mb-2"
-                    onClick={() => navigate(`/manufacturer/${product.manufacturerId}`)}
+                    onClick={() => navigate(`/manufacturer/${product.manufacturer_id}`)}
                   >
                     {product.manufacturer}
                   </Button>
@@ -220,7 +221,7 @@ const Products = () => {
                     {product.location}
                   </div>
                   
-                  <div className="flex justify-between items-center">
+                  <div className="flex justify-between items-center mb-3">
                     <div>
                       <span className="text-2xl font-bold text-green-600 dark:text-green-400">
                         ${product.price}
@@ -229,13 +230,23 @@ const Products = () => {
                         / {product.quantity}
                       </span>
                     </div>
-                    <Button 
-                      size="sm"
-                      className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-md hover:shadow-lg transition-all duration-300"
-                    >
-                      Contact
-                    </Button>
                   </div>
+                  
+                  {product.manufacturer_id && (
+                    <InquiryForm
+                      productId={product.id}
+                      manufacturerId={product.manufacturer_id}
+                      productName={product.name}
+                      trigger={
+                        <Button 
+                          size="sm"
+                          className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-md hover:shadow-lg transition-all duration-300"
+                        >
+                          Contact Supplier
+                        </Button>
+                      }
+                    />
+                  )}
                 </div>
               </CardContent>
             </Card>
