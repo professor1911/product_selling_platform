@@ -7,6 +7,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import Products from "./pages/Products";
 import Manufacturer from "./pages/Manufacturer";
+import Auth from "./pages/Auth";
+import ManufacturerPortal from "./pages/ManufacturerPortal";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -21,6 +23,8 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/products" element={<Products />} />
           <Route path="/manufacturer/:id" element={<Manufacturer />} />
+          <Route path="/auth" element={<Auth />} />
+          <Route path="/manufacturer-portal" element={<ManufacturerPortal />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

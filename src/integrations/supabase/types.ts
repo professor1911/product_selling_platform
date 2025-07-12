@@ -14,6 +14,60 @@ export type Database = {
   }
   public: {
     Tables: {
+      leads: {
+        Row: {
+          buyer_email: string
+          buyer_name: string
+          buyer_phone: string | null
+          created_at: string
+          id: string
+          manufacturer_id: string | null
+          message: string | null
+          product_id: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          buyer_email: string
+          buyer_name: string
+          buyer_phone?: string | null
+          created_at?: string
+          id?: string
+          manufacturer_id?: string | null
+          message?: string | null
+          product_id?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          buyer_email?: string
+          buyer_name?: string
+          buyer_phone?: string | null
+          created_at?: string
+          id?: string
+          manufacturer_id?: string | null
+          message?: string | null
+          product_id?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "leads_manufacturer_id_fkey"
+            columns: ["manufacturer_id"]
+            isOneToOne: false
+            referencedRelation: "manufacturers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "leads_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       manufacturers: {
         Row: {
           certifications: string[] | null
@@ -111,6 +165,44 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "products_manufacturer_id_fkey"
+            columns: ["manufacturer_id"]
+            isOneToOne: false
+            referencedRelation: "manufacturers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          approved: boolean
+          created_at: string
+          id: string
+          manufacturer_id: string | null
+          role: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          approved?: boolean
+          created_at?: string
+          id?: string
+          manufacturer_id?: string | null
+          role?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          approved?: boolean
+          created_at?: string
+          id?: string
+          manufacturer_id?: string | null
+          role?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profiles_manufacturer_id_fkey"
             columns: ["manufacturer_id"]
             isOneToOne: false
             referencedRelation: "manufacturers"
