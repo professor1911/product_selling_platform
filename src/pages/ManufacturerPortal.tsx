@@ -42,15 +42,13 @@ const ManufacturerPortal = () => {
         .eq("user_id", session.user.id)
         .single();
 
+      // Allow access even if not approved, but show status
       if (!profile?.approved) {
         toast({
-          title: "Access Denied",
-          description: "Your account is pending approval.",
-          variant: "destructive",
+          title: "Account Pending Approval",
+          description: "Your account is under review. You can view the portal but cannot manage products until approved.",
+          variant: "default",
         });
-        await supabase.auth.signOut();
-        navigate("/auth");
-        return;
       }
 
       setProfile(profile);

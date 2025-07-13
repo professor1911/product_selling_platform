@@ -80,6 +80,14 @@ const Index = () => {
           <div className="flex items-center space-x-4">
             <ThemeToggle />
             <Button 
+              onClick={() => navigate("/admin-auth")}
+              variant="ghost"
+              size="sm"
+              className="text-xs text-muted-foreground hover:text-primary"
+            >
+              Admin
+            </Button>
+            <Button 
               onClick={() => navigate("/auth")}
               variant="outline"
               className="border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white"

@@ -3,7 +3,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Edit, Trash2, Plus, Eye } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Edit, Trash2, Plus, Eye, AlertCircle } from "lucide-react";
 import { ProductForm } from "./ProductForm";
 import { useToast } from "@/hooks/use-toast";
 import type { Tables } from "@/integrations/supabase/types";
@@ -17,10 +18,23 @@ export const ProductManagement = ({ manufacturerId }: ProductManagementProps) =>
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Tables<"products"> | null>(null);
+  const [isApproved, setIsApproved] = useState(false);
   const { toast } = useToast();
 
   const fetchProducts = async () => {
     try {
+      // Check approval status
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data: profileData } = await supabase
+          .from("profiles")
+          .select("approved")
+          .eq("user_id", user.id)
+          .single();
+        
+        setIsApproved(profileData?.approved || false);
+      }
+
       const { data, error } = await supabase
         .from("products")
         .select("*")
@@ -116,9 +130,21 @@ export const ProductManagement = ({ manufacturerId }: ProductManagementProps) =>
 
   return (
     <div className="space-y-6">
+      {!isApproved && (
+        <Alert>
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>
+            Your manufacturer account is pending approval. You can view existing products but cannot add, edit, or delete products until your account is approved by an administrator.
+          </AlertDescription>
+        </Alert>
+      )}
+      
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold">Your Products</h2>
-        <Button onClick={() => setShowForm(true)}>
+        <Button 
+          onClick={() => setShowForm(true)}
+          disabled={!isApproved}
+        >
           <Plus className="w-4 h-4 mr-2" />
           Add Product
         </Button>
@@ -131,12 +157,17 @@ export const ProductManagement = ({ manufacturerId }: ProductManagementProps) =>
               <div className="w-12 h-12 mx-auto text-muted-foreground mb-4">📦</div>
               <h3 className="text-lg font-medium mb-2">No products yet</h3>
               <p className="text-muted-foreground mb-4">
-                Start by adding your first product to the catalog
+                {isApproved 
+                  ? "Start by adding your first product to the catalog"
+                  : "Once your account is approved, you can start adding products"
+                }
               </p>
-              <Button onClick={() => setShowForm(true)}>
-                <Plus className="w-4 h-4 mr-2" />
-                Add Your First Product
-              </Button>
+              {isApproved && (
+                <Button onClick={() => setShowForm(true)}>
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add Your First Product
+                </Button>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -175,6 +206,7 @@ export const ProductManagement = ({ manufacturerId }: ProductManagementProps) =>
                     variant="outline"
                     size="sm"
                     onClick={() => handleEdit(product)}
+                    disabled={!isApproved}
                   >
                     <Edit className="w-4 h-4 mr-1" />
                     Edit
@@ -183,6 +215,7 @@ export const ProductManagement = ({ manufacturerId }: ProductManagementProps) =>
                     variant="outline"
                     size="sm"
                     onClick={() => handleDelete(product.id)}
+                    disabled={!isApproved}
                   >
                     <Trash2 className="w-4 h-4 mr-1" />
                     Delete

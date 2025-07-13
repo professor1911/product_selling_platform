@@ -9,6 +9,8 @@ import Products from "./pages/Products";
 import Manufacturer from "./pages/Manufacturer";
 import Auth from "./pages/Auth";
 import ManufacturerPortal from "./pages/ManufacturerPortal";
+import AdminAuth from "./pages/AdminAuth";
+import AdminPortal from "./pages/AdminPortal";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -25,6 +27,8 @@ const App = () => (
           <Route path="/manufacturer/:id" element={<Manufacturer />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/manufacturer-portal" element={<ManufacturerPortal />} />
+          <Route path="/admin-auth" element={<AdminAuth />} />
+          <Route path="/admin-portal" element={<AdminPortal />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
