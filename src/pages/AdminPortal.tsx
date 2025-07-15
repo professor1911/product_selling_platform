@@ -80,10 +80,15 @@ const AdminPortal = () => {
             <h1 className="text-xl font-semibold">Admin Portal</h1>
             <p className="text-sm text-muted-foreground">{user?.email}</p>
           </div>
-          <Button variant="outline" onClick={handleLogout}>
-            <LogOut className="w-4 h-4 mr-2" />
-            Logout
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button variant="secondary" onClick={() => navigate("/manufacturer-portal")}>
+              Switch to Manufacturer
+            </Button>
+            <Button variant="outline" onClick={handleLogout}>
+              <LogOut className="w-4 h-4 mr-2" />
+              Logout
+            </Button>
+          </div>
         </div>
       </header>
 
