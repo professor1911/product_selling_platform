@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { Check, X, Search, Users, Building2 } from "lucide-react";
+import { logAdminAction, validateSession } from "@/lib/security";
 
 interface ManufacturerProfile {
   id: string;
@@ -73,6 +74,20 @@ export const ManufacturerManagement = () => {
 
   const handleApprove = async (profileId: string) => {
     try {
+      // Validate session
+      const { isValid } = await validateSession();
+      if (!isValid) {
+        toast({
+          title: "Session Expired",
+          description: "Please log in again to continue.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Get current manufacturer data for audit logging
+      const manufacturer = manufacturers.find(m => m.id === profileId);
+      
       const { error } = await supabase
         .from("profiles")
         .update({ approved: true })
@@ -86,6 +101,15 @@ export const ManufacturerManagement = () => {
         });
         return;
       }
+
+      // Log admin action
+      await logAdminAction(
+        'manufacturer_approved',
+        'profiles',
+        profileId,
+        { approved: false },
+        { approved: true }
+      );
 
       toast({
         title: "Success",
@@ -104,6 +128,20 @@ export const ManufacturerManagement = () => {
 
   const handleReject = async (profileId: string) => {
     try {
+      // Validate session
+      const { isValid } = await validateSession();
+      if (!isValid) {
+        toast({
+          title: "Session Expired",
+          description: "Please log in again to continue.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Get current manufacturer data for audit logging
+      const manufacturer = manufacturers.find(m => m.id === profileId);
+      
       const { error } = await supabase
         .from("profiles")
         .update({ approved: false })
@@ -117,6 +155,15 @@ export const ManufacturerManagement = () => {
         });
         return;
       }
+
+      // Log admin action
+      await logAdminAction(
+        'manufacturer_rejected',
+        'profiles',
+        profileId,
+        { approved: true },
+        { approved: false }
+      );
 
       toast({
         title: "Success",
@@ -137,6 +184,17 @@ export const ManufacturerManagement = () => {
     if (selectedIds.length === 0) return;
 
     try {
+      // Validate session
+      const { isValid } = await validateSession();
+      if (!isValid) {
+        toast({
+          title: "Session Expired",
+          description: "Please log in again to continue.",
+          variant: "destructive",
+        });
+        return;
+      }
+
       const { error } = await supabase
         .from("profiles")
         .update({ approved: true })
@@ -150,6 +208,15 @@ export const ManufacturerManagement = () => {
         });
         return;
       }
+
+      // Log bulk admin action
+      await logAdminAction(
+        'bulk_manufacturer_approved',
+        'profiles',
+        undefined,
+        { count: selectedIds.length, ids: selectedIds },
+        { approved: true }
+      );
 
       toast({
         title: "Success",
