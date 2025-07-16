@@ -15,6 +15,15 @@ import { InquiryForm } from "@/components/InquiryForm";
 const Products = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
+  
+  // Check for search query from home page
+  useEffect(() => {
+    const savedQuery = sessionStorage.getItem('searchQuery');
+    if (savedQuery) {
+      setSearchQuery(savedQuery);
+      sessionStorage.removeItem('searchQuery'); // Clean up
+    }
+  }, []);
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [priceRange, setPriceRange] = useState("all");
 

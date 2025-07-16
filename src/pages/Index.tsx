@@ -3,19 +3,35 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import { LogIn, Search, Star, Users, Package, TrendingUp, ArrowRight, CheckCircle } from "lucide-react";
 import AuthModal from "@/components/AuthModal";
 import ThemeToggle from "@/components/ThemeToggle";
 import { useNavigate } from "react-router-dom";
+import heroBackground from "@/assets/hero-background.jpg";
 
 const Index = () => {
   const [showAuth, setShowAuth] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
 
   const handleAuthSuccess = () => {
     setIsLoggedIn(true);
     setShowAuth(false);
+    navigate("/products");
+  };
+
+  const handleSearch = () => {
+    // Store search query in sessionStorage to preserve it across navigation
+    sessionStorage.setItem('searchQuery', searchQuery);
+    setShowAuth(true);
+  };
+
+  const handleAuthSuccessWithSearch = () => {
+    setIsLoggedIn(true);
+    setShowAuth(false);
+    // Navigate to products page and the search query will be picked up from sessionStorage
     navigate("/products");
   };
 
@@ -116,36 +132,48 @@ const Index = () => {
       </header>
 
       {/* Hero Section */}
-      <section className="container mx-auto px-4 py-20 text-center animate-fade-in">
-        <div className="max-w-4xl mx-auto">
-          <Badge className="mb-6 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 border-blue-200 dark:border-blue-800 animate-scale-in">
+      <section 
+        className="relative container mx-auto px-4 py-20 text-center animate-fade-in"
+        style={{
+          backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url(${heroBackground})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+          borderRadius: '24px',
+          margin: '20px',
+          minHeight: '600px'
+        }}
+      >
+        <div className="max-w-4xl mx-auto relative z-10">
+          <Badge className="mb-6 bg-blue-100/90 dark:bg-blue-900/90 text-blue-800 dark:text-blue-200 border-blue-200 dark:border-blue-800 animate-scale-in">
             🚀 Live Product Updates
           </Badge>
-          <h1 className="text-5xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent animate-fade-in">
+          <h1 className="text-5xl md:text-7xl font-bold mb-6 text-white drop-shadow-lg animate-fade-in">
             Find Perfect Products,
             <br />
             Connect with Manufacturers
           </h1>
-          <p className="text-xl text-gray-600 dark:text-gray-300 mb-8 max-w-2xl mx-auto animate-fade-in">
+          <p className="text-xl text-white/90 mb-8 max-w-2xl mx-auto animate-fade-in drop-shadow-md">
             Discover thousands of quality products from verified manufacturers. 
             Search, filter, and connect directly with suppliers worldwide.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center animate-fade-in">
-            <Button 
-              onClick={() => setShowAuth(true)}
-              size="lg"
-              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105 text-lg px-8 py-3"
-            >
-              Get Started
-              <ArrowRight className="ml-2 h-5 w-5" />
-            </Button>
-            <Button 
-              variant="outline" 
-              size="lg"
-              className="border-2 border-gray-300 dark:border-gray-600 hover:border-blue-500 dark:hover:border-blue-400 transition-all duration-300 text-lg px-8 py-3"
-            >
-              Learn More
-            </Button>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center animate-fade-in max-w-md mx-auto">
+            <div className="flex w-full">
+              <Input
+                type="text"
+                placeholder="Search products..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="flex-1 bg-white/90 backdrop-blur-sm text-gray-800 placeholder-gray-500 border-r-0 rounded-r-none focus:bg-white"
+                onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+              />
+              <Button 
+                onClick={handleSearch}
+                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105 rounded-l-none"
+              >
+                <Search className="h-5 w-5" />
+              </Button>
+            </div>
           </div>
         </div>
       </section>
@@ -253,7 +281,7 @@ const Index = () => {
       <AuthModal 
         isOpen={showAuth} 
         onClose={() => setShowAuth(false)}
-        onSuccess={handleAuthSuccess}
+        onSuccess={handleAuthSuccessWithSearch}
       />
     </div>
   );
